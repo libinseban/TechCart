@@ -24,7 +24,9 @@ app.use(cookieParser())
 app.use("/api/user", userRouter)
 app.use("/api/seller",seller)
 app.use("/api/admin", adminRouter)
-
+app.get("/", (req,res) => {
+    res.json("home page")
+})
 
  ;
 const PORT =  process.env.PORT || 8000
