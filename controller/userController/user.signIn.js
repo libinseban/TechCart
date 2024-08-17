@@ -37,7 +37,7 @@ async function userSignInController(req, res) {
     // Check if the user is a regular user
     const user = await userModel.findOne({ email });
     if (user) {
-      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword);
+      const isPasswordMatch =  bcrypt.compare(password, user.hashPassword);
       if (isPasswordMatch) {
         const tokenData = {
           _id: user._id,

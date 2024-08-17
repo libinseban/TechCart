@@ -31,7 +31,7 @@ const forgetPassword = async (req, res) => {
       from: "Admin of E-Cart",
       to: email,
       subject: "Password Reset Request",
-      text: `Click on this link to generate a new password: ${process.env.USER_URL}/reset-password/${userToken}`
+      text: `Click on this link to generate a new password: ${process.env.FRONTEND_URL}/reset-password/${userToken}`
     };
 
     await transporter.sendMail(receiver);
@@ -43,8 +43,7 @@ const forgetPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { userToken } = req.params;
-    const { newPassword } = req.body;
+    const { newPassword,userToken } = req.body;
 
     // Verify the token
     const decoded = jwt.verify(userToken, process.env.USER_SECRET_KEY);

@@ -24,13 +24,15 @@ async function createorder(userId, shippingAddress) {
       await user.save();
     }
 
-    const cart = await cartService.findUserCart(userId);
+    const cart = await cartItem.findOne({ user: userId })
+    // .populate({ path: 'cartItem', strictPopulate: false })
+    //   .exec();
     if (!cart || !cart.items || cart.items.length === 0) {
       throw new Error("Cart is empty");
     }
 
-    const orderItems = cart.items.map(cartItem => ({
-      product: cartItem.product._id,
+    const orderItems = cart.item.map(cartItem => ({
+      product: cartItem.productId,
       quantity: cartItem.quantity,
       price: cartItem.price,
       discountPrice: cartItem.discountPrice,
@@ -39,11 +41,11 @@ async function createorder(userId, shippingAddress) {
 
     const createOrder = new Order({
       user: userId,
+      product: cart.productId,
       totalPrice: cart.totalPrice,
       totalItem: cart.totalItem,
       totalDiscountPrice: cart.totalDiscountPrice,
       shippingAddress: address._id, 
-      orderItems: orderItems,
       orderDate: new Date(),
       createAd: new Date(),
     });

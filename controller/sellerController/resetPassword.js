@@ -29,10 +29,10 @@ const forgetPassword = async (req, res) => {
     });
 
     const receiver = {
-      from: "Admin of E-Cart",
+      from: "Admin of Tech-Cart",
       to: email,
       subject: "Password Reset Request",
-      text: `Click on this link to generate a new password: ${process.env.SELLER_URL}/reset-password/${sellerToken}`
+      text: `Thank You for being part of our journey.Click on this link to generate a new password : ${process.env.FRONDEND_URL}/reset-password/${sellerToken}`
     };
 
     await transporter.sendMail(receiver);
@@ -44,8 +44,7 @@ const forgetPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { sellerToken } = req.params;
-    const { newPassword } = req.body;
+    const { newPassword,sellerToken } = req.body;
 
       console.log(sellerToken)
       
