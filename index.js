@@ -12,7 +12,7 @@ const app = express();
 // CORS configuration
 app.use(cors({
     origin: [
-        "https://frontend-alpha.vercel.app",
+        "https://frondend-gdvt2329p-libin-sebans-projects.vercel.app",
         "http://localhost:5173"
     ],
     credentials: true,
