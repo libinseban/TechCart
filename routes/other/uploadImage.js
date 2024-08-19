@@ -7,7 +7,7 @@ const cloudinary = require('../../config/cloudinary');
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'profile_pics', 
+    folder: 'profilePic',
   },
 });
 
@@ -18,8 +18,9 @@ router.post('/', upload.single('file'), (req, res) => {
     console.log('File uploaded successfully:', req.file);
     res.status(200).json({ message: 'File uploaded successfully', file: req.file });
   } else {
-    console.error('Error uploading file:', error);
-    res.status(500).json({ message: 'Error uploading file', error: error });
+   
+    console.error('Error uploading file: No file provided');
+    res.status(400).json({ message: 'No file provided' });
   }
 });
 

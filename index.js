@@ -9,16 +9,16 @@ require("dotenv").config();
 
 const app = express();
 
-// CORS configuration
+const allowedOrigins = ['https://frondend-alpha.vercel.app'];
+
 app.use(cors({
-    origin: [
-        "https://frondend-e840jg4ou-libin-sebans-projects.vercel.app",
-        "http://localhost:5173"
-    ],
-    credentials: true,
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
 
-app.options('*', cors()); // Handle preflight requests
+app.options('*', cors());
 
 app.use(express.static("public"));
 app.use(express.json());
