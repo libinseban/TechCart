@@ -37,7 +37,7 @@ const productSchema = new mongoose.Schema({
     }],
     imageUrl: {
         type: String,
-        required: false,
+        required: true,
     },
     ratings: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -55,7 +55,7 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' }, 
+    category: [{ type: String, required:true }], 
     seller: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }]
 });
 

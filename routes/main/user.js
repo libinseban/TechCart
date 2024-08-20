@@ -21,8 +21,7 @@ userRouter.post("/signup", userSignUpController);
 userRouter.post("/signin", userSignInController); 
 userRouter.post("/forget-password", forgetPassword); 
 userRouter.post('/reset-password/:userToken', resetPassword);
-
-userRouter.get("/products" ,AllProducts.getAllProducts)
+userRouter.get("/products", AllProducts.getAllProducts)
 
 userRouter.get("/wish-list", authenticate, getAllProducts)
 userRouter.get("/wish-list/get/:productId", authenticate, getProduct)

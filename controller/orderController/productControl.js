@@ -14,12 +14,10 @@ const createProduct = async (req, res) => {
     category 
   } = req.body;
 
-  // Log the incoming request body for debugging
   console.log("Request Body:", req.body);
 
-  // Check for required fields
-  if (!title || !price || !discountPrice || !discountPercentage || !quantity || !brand || !color) {
-    return res.status(400).json({ error: 'Please provide all required fields' });
+  if (!title || !price || !discountPrice || !discountPercentage || !quantity || !brand || !color || !category) {
+    return res.status(400).json({ error: 'Please provide all required fields including category' });
   }
 
   try {
@@ -33,7 +31,8 @@ const createProduct = async (req, res) => {
       brand,
       color,
       imageUrl,
-      category    });
+      category // Save the category as a string
+    });
 
     await product.save();
     return res.status(201).json(product);
@@ -42,6 +41,7 @@ const createProduct = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
 
 const updateProduct = async (req, res) => {
   const productId = req.params.id;
@@ -96,7 +96,7 @@ const findProductById = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
   try {
-      const products = await Product.find().populate('category');
+      const products = await Product.find()
       return res.status(200).json(products);
   } catch (error) {
       console.error("Error in getAllProducts controller:", error.message);
