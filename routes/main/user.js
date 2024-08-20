@@ -14,6 +14,7 @@ const {newOrder,OrderHistory,findOrderById}=require('../../controller/orderContr
 const {updateWishList, removeWishList, getAllProducts , getProduct ,moveProductToCart}=require('../../controller/orderController/wishListController');
 const {findUserCartController, removeItemCartController, addItemCartController,findUserCartById}=require('../../controller/orderController/cartControl');
 const {forgetPassword,resetPassword, getResetPassword} = require("../../controller/userController/forgetPassword");
+const AllProducts = require('../../controller/orderController/productControl');
 
 userRouter.use('/upload', uploadImage);
 userRouter.post("/signup", userSignUpController);
@@ -21,11 +22,14 @@ userRouter.post("/signin", userSignInController);
 userRouter.post("/forget-password", forgetPassword); 
 userRouter.post('/reset-password/:userToken', resetPassword);
 
+userRouter.get("/products" ,AllProducts.getAllProducts)
+
 userRouter.get("/wish-list", authenticate, getAllProducts)
 userRouter.get("/wish-list/get/:productId", authenticate, getProduct)
 userRouter.put('/wish-list/:productId', authenticate, updateWishList);
 userRouter.post("/wish-list/moveToCart/:productId",authenticate,moveProductToCart)
 userRouter.delete('/wish-list/delete/:productId', authenticate, removeWishList);
+
 
 userRouter.get('/cart', authenticate, findUserCartController);
 userRouter.get('/cart/:productId', authenticate, findUserCartById);

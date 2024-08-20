@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const app = express();
 
-const allowedOrigins = ['https://frondend-alpha.vercel.app'];
+const allowedOrigins = ['https://frondend-alpha.vercel.app' ,'http://localhost:5173'];
 
 app.use(cors({
     origin: allowedOrigins,
