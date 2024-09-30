@@ -1,29 +1,34 @@
 const Reviews = require("../../models/server/review");
+const Product = require("../../models/server/productModel");
 
-const Product=require("../../models/server/productModel");
+async function createReview(productId, userId,reviewByUser) {
+  const product = await Product.findById(productId);
 
+  if (!product) {
+    throw new Error("Product not found");
+  }
 
-async function createReview(reqData,user){
-  const product=await Product.findProductById(reqData.productId);
+  const review = new Reviews({
+    user: userId,
+    product: product._id,
+    review: reviewByUser,
+    createdAt: new Date(),
+  });
 
-  const review=new Reviews({
-    user:user._id,
-    product:product._id,
-    review:reqData.review,
-    createAt:new Date(),
-  })
-
-  await product.save();
-  return await review.save();
-
-}
-async function getAllReview(productId){
-    const product=await ProductService.findProductById(reqData.productId);
-
-    return await Reviews.find({product:productId}).populate("user");
+  return await review.save(); 
 }
 
-module.exports={
-    getAllReview,
-    createReview
+async function getAllReview(productId) {
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  return await Reviews.find({ product: productId }).populate("user");
 }
+
+module.exports = {
+  getAllReview,
+  createReview,
+};

@@ -23,17 +23,16 @@ const userShema=new mongoose.Schema({
         required: true,
         unique: true 
       },
-      role: { type: String, enum: ['user', 'admin'], default: 'user' }, 
-      phone: {
+      role: {
         type: String,
-        required:Number
-      
+        enum: ['ADMIN', 'SELLER', 'CUSTOMER'], 
+        default: 'CUSTOMER'
       },
       address:[
         {
           type:mongoose.Schema.Types.ObjectId,
-              ref:"address",
-            required:true
+              ref:"Address",
+           
         }
       ],
       paymentInformation:[

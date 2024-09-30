@@ -6,7 +6,6 @@ const userSignInController = require("../../controller/userController/user.signI
 const userDetailsController = require("../../controller/userController/userDetails");
 const userLogout = require("../../controller/userController/user.logout");
 const uploadImage = require("../other/uploadImage");
-// const paymentController = require("../other/paymentuserRouter");
 const reviewRoutes = require('../service/reviewRoutes')
 const ratingRoutes = require('../service/ratingRoutes')
 const authenticate = require('../../middleware/authToken')
@@ -15,6 +14,7 @@ const {updateWishList, removeWishList, getAllProducts , getProduct ,moveProductT
 const {findUserCartController, removeItemCartController, addItemCartController,findUserCartById}=require('../../controller/orderController/cartControl');
 const {forgetPassword,resetPassword, getResetPassword} = require("../../controller/userController/forgetPassword");
 const AllProducts = require('../../controller/orderController/productControl');
+const { cancelOrder } = require("../../controller/service/orderSevice");
 
 userRouter.use('/upload', uploadImage);
 userRouter.post("/signup", userSignUpController);
@@ -33,14 +33,16 @@ userRouter.delete('/wish-list/delete/:productId', authenticate, removeWishList);
 userRouter.get('/cart', authenticate, findUserCartController);
 userRouter.get('/cart/:productId', authenticate, findUserCartById);
 userRouter.put('/cart/add', authenticate, addItemCartController);
+
 userRouter.delete('/cart/remove/:productId', authenticate, removeItemCartController);
 
 userRouter.put('/order', authenticate, newOrder);
 userRouter.get('/order/history',authenticate, OrderHistory);
-userRouter.get('/search/:id',authenticate, findOrderById);
+userRouter.get('/search/:productId', authenticate, findOrderById);
+userRouter.delete('/removeOrder',authenticate,cancelOrder)
 userRouter.use("/review",reviewRoutes);
 userRouter.use("/ratings",ratingRoutes);
-//userRouter.use("/payment", authToken, paymentController);
+
 
 userRouter.get("/userdetails", authenticate, userDetailsController);
 userRouter.post("/logout", userLogout);

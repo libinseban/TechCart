@@ -55,7 +55,8 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    category: [{ type: String, required:true }], 
+    category: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }],
+
     seller: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }]
 });
 

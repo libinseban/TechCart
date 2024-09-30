@@ -19,12 +19,12 @@ async function findUserCart(userId) {
       .populate({ path: 'cartItem', strictPopulate: false })
       .exec();
 
-    if (!cart || !cart.cartItem) {
-      throw new Error("cart or cart-items not found");
-    }
+      if (!cart || !cart.cartItem || cart.cartItem.length === 0) {
+        return { message: "Cart is empty" };
+      }
 
     const cartItems = cart.cartItem;
-
+ 
     let totalPrice = 0;
     let totalDiscountPrice = 0;
     let totalItem = 0;
@@ -33,11 +33,13 @@ async function findUserCart(userId) {
       totalPrice += cartItem.price * cartItem.quantity;
       totalDiscountPrice += cartItem.discountPrice * cartItem.quantity;
       totalItem += cartItem.quantity;
+     
     }
-
+   const productId = cart.cartItem.map(item => item.product._id);
     return {
       cart: cart._id,
       user: cart.user,
+      product:productId,
       totalDiscountPrice,
       totalPrice,
       totalItem,
@@ -87,8 +89,11 @@ async function addCartItem(userId, { productId, quantity }) {
       await cart.save();
       return await findUserCart(userId); 
     } else {
+      isPresent.quantity += quantity || 1; 
+      await isPresent.save(); 
       return "Item is already in the cart";
     }
+    return await findUserCart(userId);
   } catch (error) {
     console.error(error);
     throw error;
@@ -100,7 +105,6 @@ async function removeCartItem(userId, productId) {
   console.log("Product ID:", productId);
 
   try {
-    // Find the cart associated with the user
     const cart = await Cart.findOne({ user: userId });
     
     if (!cart) {

@@ -1,25 +1,28 @@
-const Rating=require ('../../models/server/ratingModel.js')
-const product=require('../../models/server/productModel.js');
-const { CreateCart } = require('./cartService');
+const Rating = require('../../models/server/ratingModel.js');
+const Product = require('../../models/server/productModel.js');
 
+async function createRating(productId, userId,ratingNumber) {
+  const product = await Product.findById(productId);
 
-async function createRating(req,res){
-    const product=await product.findProductById(req.productId);
+  if (!product) {
+    throw new Error("Product not found");
+  }
 
-    const rating =new Rating({
-        product:product._id,
-        user:user._id,
-        rating:req.rating,
-        CreateAt:new Date()
-    })
-    return await rating.save();
+  const rating = new Rating({
+    product: product._id,
+    user: userId,
+    rating: ratingNumber,
+    createdAt: new Date(),
+  });
 
+  return await rating.save();
 }
 
-async function getProductRating(productId){
-    return await Rating.find({product:productId});
+async function getProductRating(productId) {
+  return await Rating.find({ product: productId }).populate("user");
 }
-module.exports={
-    createRating,
-    getProductRating
-}
+
+module.exports = {
+  createRating,
+  getProductRating,
+};

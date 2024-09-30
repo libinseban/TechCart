@@ -44,20 +44,20 @@ async function userSignInController(req, res) {
           email: user.email,
           role: 'user',
         };
-        const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5d" });
+        const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
 
         // Send token in response
         return res.cookie("userToken", userToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json({
           success: true,
           message: "Login Successful",
           token: userToken,
+          userId: user._id,
           role: 'user',
           
         });
       }
     }
 
-    // If no matching user or password is incorrect
     return res.status(400).json({
       message: "Invalid email or password",
       success: false,

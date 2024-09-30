@@ -14,10 +14,10 @@ const createProduct = async (req, res) => {
       color, 
       imageUrl,
       category,
-      sellerId 
+     sellerId
     } = req.body;
   
-    if (!title || !price || !quantity || !brand || !color || !sellerId) {
+    if (!title || !price || !quantity || !brand || !color ) {
       return res.status(400).json({ error: 'Please provide all required fields' });
     }
   
@@ -38,7 +38,7 @@ const createProduct = async (req, res) => {
         color,
         imageUrl,
         category,
-        seller: sellerId // Ensure the seller reference is set here
+        seller:sellerId 
       });
   
       const savedProduct = await product.save();

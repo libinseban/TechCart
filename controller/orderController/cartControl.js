@@ -7,7 +7,6 @@ const Cart = require("../../models/cart/cartModel");
 const findUserCartController = async (req, res) => {
   const { userId } = req.body;
 
-  console.log(userId);
 
   try {
     const cartItems = await findUserCart(userId);

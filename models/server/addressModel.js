@@ -36,16 +36,16 @@ const AddressShema=new mongoose.Schema({
        
       },
       
-      user:[{
+      user:{
         type:mongoose.Schema.ObjectId,
         ref:"User",
         required:true,
-      }],
-  phoneNumber: { type: String, required: true },
+      },
+  phoneNumber: { type: Number, required: true },
       
 },{
   timestamps: true
 })
-const Address=mongoose.model("address",AddressShema);
+const Address=mongoose.model("Address",AddressShema);
 
 module.exports=Address;

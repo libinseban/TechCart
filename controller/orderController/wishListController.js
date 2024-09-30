@@ -2,13 +2,13 @@ const mongoose = require('mongoose');
 const wishList = require("../../models/cart/wishList");
 const Product = require("../../models/server/productModel"); 
 const Cart=require('../../models/cart/cartModel')
-const { json } = require('express');
 const CartItem = require('../../models/cart/cartItem');
+const { addCartItem } = require('../service/cartService');
 const ObjectId = mongoose.Types.ObjectId;
 
 const updateWishList = async (req, res) => {
-  const { userId, productId } = req.body;
-
+  const { userId } = req.body;
+const {productId}=req.params;
   if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).send({ error: 'Invalid productId or userId' });
   }
@@ -16,13 +16,18 @@ const updateWishList = async (req, res) => {
   try {
     let wishlist = await wishList.findOne({ user: userId });
     if (!wishlist) {
-      wishlist = new wishList({ user: userId, product: [productId] });
+      wishlist = new wishList({ user: userId, products: [{product:productId,quantity:1}] });
     } else {
-      // Avoid adding duplicate products
-      if (!wishlist.product.includes(productId)) {
-        wishlist.product.push(productId);
+      const existingProduct = wishlist.products.find(item => item.product.equals(productId));
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+        }
+        else {
+          wishlist.products.push({ product: productId, quantity: 1 });
+        }
       }
-    }
+
+    
 
     await wishlist.save();
 
@@ -35,7 +40,7 @@ const updateWishList = async (req, res) => {
 
 const removeWishList = async (req, res) => {
   const { userId } = req.body;
-  const productId = req.params.productId; 
+  const { productId } = req.params; 
 
   try {
     const wishlist = await wishList.findOne({ user: userId });
@@ -44,32 +49,44 @@ const removeWishList = async (req, res) => {
       return res.status(404).send({ error: "Wishlist not found for the given userId." });
     }
 
-    const updatedWishlist = await wishList.findOneAndUpdate(
-      { user: userId },
-      { $pull: { product: productId } }, 
-      { new: true } 
-    );
-
-    if (updatedWishlist) {
-      return res.status(200).send({ message: "Product removed successfully", updatedWishlist });
-    } else {
-      return res.status(400).send({ error: "Failed to remove product from wishlist. Ensure the item exists." });
+    const existingProduct = wishlist.products.find(item => item.product.equals(productId));
+    
+    if (!existingProduct) {
+      return res.status(404).send({ error: "Product not found in wishlist." });
     }
+
+    existingProduct.quantity -= 1;
+
+    if (existingProduct.quantity <= 0) {
+      wishlist.products = wishlist.products.filter(item => !item.product.equals(productId));
+    }
+
+    await wishlist.save();
+
+    return res.status(200).send({ message: "Product quantity decreased successfully", updatedWishlist: wishlist });
   } catch (error) {
     console.error("Error removing wishlist item:", error);
     return res.status(500).send({ error: "Internal Server Error. Please try again later." });
   }
-}
+};
 
 const getAllProducts = async (req, res) => {
-  const { userId } = req.body
+  const { userId } = req.body;
+  
   try {
-    const wishlist = await wishList.findOne({ user: userId }).populate('product');
+    const wishlist = await wishList.findOne({ user: userId }).populate('products.product');
 
     if (wishlist) {
-      const products = wishlist.product;
-      console.log(products)
-      return res.status(200).send({ message: "Products in WishList" ,products});
+      const productDetails = wishlist.products.map(item => ({
+        product: item.product,
+        quantity: item.quantity, 
+      }));
+
+      if (productDetails.length === 0) {
+        return res.status(200).send({ message: "Wishlist is empty." });
+      }
+      return res.status(200).send({ message: "Products in WishList", productDetails });
+      
     } else {
       return res.status(404).send({ error: "Wishlist not found for the given userId." });
     }
@@ -77,24 +94,21 @@ const getAllProducts = async (req, res) => {
     console.error("Error fetching wishlist products:", error);
     return res.status(500).send({ error: "Internal Server Error. Please try again later." });
   }
-}
-
+};
 
 const getProduct = async (req, res) => {
   const { userId } = req.body;
   const { productId } = req.params;
 
   try {
-    // Find the wishlist for the user and populate product details
-    const wishlist = await wishList.findOne({ user: userId }).populate('product');
+    const wishlist = await wishList.findOne({ user: userId }).populate('products.product');
     
     if (!wishlist) {
       console.log("Wishlist not found");
       return res.status(404).send({ message: "Wishlist not found" });
     }
-console.log(wishlist.product)
-    // Find the specific product in the wishlist
-    const product = wishlist.product.find(item => item._id.toString() === productId);
+
+    const product = wishlist.products.find(item => item.product.toString() === productId);
 
     if (!product) {
       console.log("Product not found in Wishlist");
@@ -109,70 +123,37 @@ console.log(wishlist.product)
 };
 
 const moveProductToCart = async (req, res) => {
-  const { userId } = req.body;
+  const { userId, quantity } = req.body;
   const { productId } = req.params;
 
   try {
-    // Validate input
     if (!productId || !userId) {
       return res.status(400).send({ error: "Product ID and User ID are required" });
     }
 
-    // Find the wishlist for the user
-    const wishlist = await wishList.findOne({ user: userId }).populate('product');
-    if (!wishlist) {
-      return res.status(404).send({ error: "Wishlist not found" });
-    }
-
-    // Create or find the user's cart
     let cart = await Cart.findOne({ user: userId });
     if (!cart) {
       cart = new Cart({ user: userId, cartItem: [] });
     }
+    
+    const cartItems = await addCartItem(userId, { productId, quantity });
 
-    console.log("products in cartItems  :"  + cart.cartItem.product)
-    // Check if the product is already in the cart
-    const productInCart = cart.cartItem.some(item => item.product.toString() === productId);
-    if (productInCart) {
-      return res.status(400).send({ message: "Product is already in the cart" });
-    }
-
-    // Find the product in the wishlist
-    const product = wishlist.product.find(prod => prod._id.toString() === productId);
-    if (!product) {
-      return res.status(404).send({ error: "Product not found in wishlist" });
-    }
-
-    // Add the product to the cart
-    cart.cartItem.push({
-      product: product._id,
-      quantity: 1,
-      price: product.price || 0,
-      discountPrice: product.discountPrice || 0,
-    });
-
-    await cart.save();
-
-    // Remove the product from the wishlist
-    await wishList.updateOne(
+    await wishList.findOneAndUpdate(
       { user: userId },
-      { $pull: { product: product._id } }
+      { $pull: { product: productId } },
+      { new: true }
     );
 
-    // Send the response only once
+
     return res.status(200).send({
       message: "Product moved to cart successfully",
-      cart,
+      cartItems
     });
-  } catch (error) {
-    // Log error and send error response
-    console.error("Error moving product to cart:", error);
 
-    // Ensure only one response is sent
-    if (!res.headersSent) {
-      return res.status(500).send({ error: "Internal Server Error. Please try again later." });
-    }
+  } catch (error) {
+    console.error("Error moving product to cart:", error);
+    return res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
-module.exports = { moveProductToCart,removeWishList, updateWishList, getAllProducts ,getProduct};
+module.exports = { moveProductToCart, removeWishList, updateWishList, getAllProducts, getProduct };

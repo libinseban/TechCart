@@ -1,6 +1,4 @@
-// CartItem Model
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
 
 const cartItemSchema = new mongoose.Schema({
   product: {
@@ -19,15 +17,16 @@ const cartItemSchema = new mongoose.Schema({
   },
   discountPrice: {
     type: Number,
-    required: true
+    required: false, 
+    default: 0 
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
-});
+  },
 
+});
 
 const CartItem = mongoose.model("CartItem", cartItemSchema);
 module.exports = CartItem;

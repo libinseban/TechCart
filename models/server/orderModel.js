@@ -1,56 +1,56 @@
-const mongoose = require('mongoose');
+/** @format */
+
+const { default: mongoose } = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  orderDate: {
+    type: Date,
+    default: Date.now,
+  },
+  address: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Address",
+    required: true,
+  },
+  orderStatus: {
+    type: String,
+    enum: ["PENDING", "SHIPPED", "DELIVERED", "CANCELLED"],
+    default: "PENDING",
+  },
+  totalPrice: {
+    type: Number,
+    required: true,
+  },
+  totalDiscountPrice: {
+    type: Number,
+    required: true,
+  },
+  totalItem: {
+    type: Number,
+    required: true,
+  },
+  products: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+  createAd: {
+    type: Date,
+    default: Date.now,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['Pending', 'Completed', 'Failed', 'Refunded'], 
+    default: 'Pending'
+},
+  transactionId: {
+    type: String,
+    required: function () {
+      return this.paymentStatus === "PAID";
     },
-    product:[ {
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"Product"
-    }],
-    totalPrice: {
-        type: Number,
-        required: true
-    },
-    totalDiscountPrice: {
-        type: Number,
-        required: true
-    },
-    totalItem: {
-        type: Number,
-        required: true
-    },
-    orderDate: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-    deliveryDate: {
-        type: Date
-    },
-    shippingAddress: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: true
-    },
-    paymentDetails: {
-        paymentMethod: String,
-        transactionId: String,
-        paymentId: String,
-        paymentStatus: String
-    },
-    orderStatus: {
-        type: String,
-        required: true,
-        default: 'PENDING'
-    },
-    createAd: {
-        type: Date,
-        required: true,
-        default: Date.now
-    }
+  },
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
+module.exports = Order;

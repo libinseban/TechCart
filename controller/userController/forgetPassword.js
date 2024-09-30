@@ -43,21 +43,18 @@ const forgetPassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { newPassword,userToken } = req.body;
-
-    // Verify the token
+    const { newPassword } = req.body;
+    const { userToken } = req.params;
+  
     const decoded = jwt.verify(userToken, process.env.USER_SECRET_KEY);
 
-    // Find the user by email
     const user = await User.findOne({ email: decoded.email });
     if (!user) {
       return res.status(400).send({ message: "User not found." });
     }
 
-    // Hash the new password
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
-    // Update the user's password
     user.password = hashPassword;
     await user.save();
 

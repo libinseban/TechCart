@@ -31,7 +31,7 @@ const createProduct = async (req, res) => {
       brand,
       color,
       imageUrl,
-      category // Save the category as a string
+      category 
     });
 
     await product.save();
@@ -95,14 +95,19 @@ const findProductById = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
+  const { category } = req.query;
+
   try {
-      const products = await Product.find()
-      return res.status(200).json(products);
+    const filter = category ? { category } : {};
+    const products = await Product.find(filter).populate('category');
+    return res.status(200).json(products);
   } catch (error) {
-      console.error("Error in getAllProducts controller:", error.message);
-      return res.status(500).json({ error: error.message });
+    console.error('Error fetching products:', error.message);
+    return res.status(500).json({ error: error.message });
   }
-};
+
+}
+
 const createMultipleProducts = async (req, res) => {
   try {
     const products = await Product.insertMany(req.body);
