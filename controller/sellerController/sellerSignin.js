@@ -24,17 +24,20 @@ const sellerSignIn = async (req, res) => {
 
     // If the password is correct, generate a JWT token
     const sellerData = {
-      _id: seller._d,
+      _id: seller._id,
       email: seller.email,
     };
     const sellerToken = jwt.sign(sellerData, process.env.SELLER_SECRET_KEY, {
       expiresIn: "5d",
     });
 
+    localStorage.setItem('sellerId', sellerData._id);
+
     // Send the token as a cookie and in the response body
     res.cookie("sellerToken", sellerToken, { httpOnly: true, secure: true }).json({
       success: "Login Successful",
       token: sellerToken,
+      sellerData
     });
 
   } catch (error) {

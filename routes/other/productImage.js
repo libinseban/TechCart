@@ -1,26 +1,30 @@
-const express = require('express');
-const router = express.Router();
+const express = require("express");
+const productImage = express.Router();
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../../config/cloudinary');
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'product_images', 
-  },
+    cloudinary: cloudinary,
+    params: {
+        folder: 'productImages',  
+        format: async (req, file) => 'png', 
+        public_id: (req, file) => file.originalname, 
+    },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).array('productImages', 5);
 
-router.post('/', upload.single('images'), (req, res) => {
-  if (req.images) {
-    console.log('Images uploaded successfully:', req.images);
-    res.status(200).json({ message: 'Images uploaded successfully', images: req.images });
-  } else {
-    console.error('Error uploading Image:', error);
-    res.status(500).json({ message: 'Error uploading Image', error: error });
-  }
+productImage.use('/', upload, (req, res, next) => {
+    if (req.files && req.files.length > 0) {
+        const uploadedImages = req.files.map(file => file.path);  
+        console.log('Images uploaded successfully:', uploadedImages);       
+        req.uploadedImages = uploadedImages; 
+        next(); 
+    } else {
+        console.error('Error uploading images');
+        return res.status(500).json({ message: 'Error uploading images' });
+    }
 });
 
-module.exports = router;
+module.exports = productImage;

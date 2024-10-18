@@ -1,7 +1,7 @@
 const express=require('express');
 const routes=express.Router();
 const authenticate=require('../../middleware/authToken')
-const reviwController=require('../../controller/orderController/reviewController')
+const reviwController=require('../../controller/productController/reviewController')
 
 routes.post('/create',authenticate,reviwController.createReview);
 routes.get('/:productId',authenticate,reviwController.getAllReview);

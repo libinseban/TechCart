@@ -13,12 +13,11 @@ seller.post("/logout", sellerLogout)
 seller.post("/forget-password", forgetPassword); 
 seller.post('/reset-password/:sellerToken', resetPassword);
 
-seller.use('/:sellerId/images', sellerVerify, productImage);
-seller.post('/',sellerVerify,productController.createProduct);
+seller.post('/product',sellerVerify,productImage,productController.createProduct);
 seller.post('/creates', sellerVerify,productController.createMultipleProducts);
-seller.put('/:id', sellerVerify,productController.updateProduct);
-seller.get('/product/:id',sellerVerify, productController.findProductById);
+seller.put('/:productId', sellerVerify,productImage,productController.updateProduct);
+seller.get('/product/:productId',sellerVerify, productController.findProductById);
 seller.get('/products/:sellerId',sellerVerify,productController.getAllProducts);
-seller.delete('/:id',sellerVerify,productController.deleteProduct);
+seller.delete('/:productId',sellerVerify,productController.deleteProduct);
 
 module.exports = seller;

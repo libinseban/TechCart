@@ -13,15 +13,15 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('/', upload.single('file'), (req, res) => {
+router.use('/', upload.single('file'), (req, res,next) => {
   if (req.file) {
-    console.log('File uploaded successfully:', req.file);
-    res.status(200).json({ message: 'File uploaded successfully', file: req.file });
+    req.body.profilePic = req.file.path;
+    next()
   } else {
-   
     console.error('Error uploading file: No file provided');
     res.status(400).json({ message: 'No file provided' });
   }
+
 });
 
 module.exports = router;

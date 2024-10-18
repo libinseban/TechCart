@@ -1,9 +1,9 @@
 const express = require('express');
-const router = express.Router();
+const pendingSellers = express.Router();
 const Seller = require('../../models/client/seller');
 
 
-router.get('/pendingSellers', async (req, res) => {
+pendingSellers.get('/pendingSellers', async (req, res) => {
     try {
         const pendingSellers = await Seller.find({ isApproved: false });
         res.json(pendingSellers);
@@ -14,7 +14,7 @@ router.get('/pendingSellers', async (req, res) => {
 });
 
 
-router.put('/approveSeller/:sellerId', async (req, res) => {
+pendingSellers.put('/:sellerId', async (req, res) => {
     const { sellerId } = req.params;
     console.log(sellerId)
     try {
@@ -26,4 +26,4 @@ router.put('/approveSeller/:sellerId', async (req, res) => {
     }
 });
 
-module.exports = router;
+module.exports = pendingSellers;

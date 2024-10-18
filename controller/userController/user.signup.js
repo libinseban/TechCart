@@ -8,7 +8,7 @@ const userSignUpController = async (req, res) => {
         const { email, password, firstName,lastName, profilePic } = req.body;
         const findUser = await userModel.findOne({ email });
         if (findUser) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(200).json({ message: "User already exists" });
         }
         if (!email || !password || !firstName||!lastName) {
             return res.status(400).json({ message: "Please fill out all fields" });
@@ -38,6 +38,7 @@ const userSignUpController = async (req, res) => {
             success: "User Created Successfully",
             error: false,
         });
+        console.log("User created successfully", savedUser)
     } catch (error) {
         res.status(500).json({ message: error.message, error: true, success: false });
     }

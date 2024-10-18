@@ -25,8 +25,10 @@ const productSchema = new mongoose.Schema({
     },
     quantity: {
         type: Number,
-        required: true,
+        default: 1,
+        min: [1, 'Quantity cannot be less than 1'],
     },
+    
     brand: {
         type: String,
         required: true,
@@ -35,10 +37,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     }],
-    imageUrl: {
+    productImages: [{
         type: String,
         required: true,
-    },
+    }],
     ratings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "rating",
@@ -55,7 +57,7 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    category: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }],
+    category: [{ type:String, ref: 'Category', required: true }],
 
     seller: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }]
 });

@@ -30,7 +30,7 @@ const sellerSignUp = async (req, res) => {
     });
 
     await newSeller.save();
-    res.status(201).json({ message: "Seller registered successfully" });
+    res.status(201).json({success: "Seller registered successfully",newSeller });
   } catch (error) {
     console.error('Error during seller sign-up:', error);
     res.status(500).json({ message: error.message });
