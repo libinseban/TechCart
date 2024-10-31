@@ -5,8 +5,8 @@ const { default: mongoose } = require("mongoose");
 const Cart = require("../../models/cart/cartModel");
 
 const findUserCartController = async (req, res) => {
+  console.log("Cookies: ", req.cookies); 
   const userId  = req.cookies.userId;
-
 
   try {
     const cartItems = await findUserCart(userId);
@@ -20,8 +20,11 @@ const findUserCartController = async (req, res) => {
 };
 
 const addItemCartController = async (req, res) => {
+
+  const userId = req.cookies.userId;
   const { productId, quantity } = req.body;
-  const userId = cookies.userId;
+  
+
   if (!userId) {
     return res.status(400).send({ error: "User not authenticated" });
   }

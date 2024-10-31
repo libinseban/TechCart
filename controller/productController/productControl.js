@@ -162,10 +162,10 @@ const findProductById = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const { category } = req.query;
+  const { category } = req.body; 
 
   try {
-    const filter = category ? { category } : {};
+    const filter = category ? { category } : {}; 
     const products = await Product.find(filter).populate("category");
     return res.status(200).json(products);
   } catch (error) {
@@ -173,6 +173,7 @@ const getAllProducts = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
 
 const createMultipleProducts = async (req, res) => {
   try {

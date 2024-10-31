@@ -24,7 +24,11 @@ async function userSignInController(req, res) {
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
 
         // Send token in response
-        return res.cookie("access_token", token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json({
+        return res.cookie("access_token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax', // or 'Strict'
+        }).json({
           success: true,
           message: "Login Successful",
           token: token,
@@ -34,6 +38,7 @@ async function userSignInController(req, res) {
       }
     }
 
+    // Check if the user is a regular user
     const user = await userModel.findOne({ email });
     if (user) {
       const isPasswordMatch = await bcrypt.compare(password, user.hashPassword);
@@ -44,31 +49,33 @@ async function userSignInController(req, res) {
           role: 'user',
         };
         const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
-        
-        return res.cookie("userToken", userToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json({
+res.cookie("userId",user._id.toString(),{httpOnly:true,secure:process.env.NODE_ENV==="production"})
+        return res.cookie("userToken", userToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax', 
+        }).json({
           success: true,
           message: "Login Successful",
           token: userToken,
-          userId: user._id,
           role: 'user',
-          
         });
       }
-    } else {
-      res.status(400).json({message:"email id not found"})
-    }
+    } 
+
 
     return res.status(400).json({
-      message: "Incorrect Password",
+      message: "Email or password is incorrect",
       success: false,
     });
-    
+
   } catch (error) {
     console.error("Sign-in error:", error);
-    res.status(500).json({
-      message: error.message || "An unexpected error occurred",
+    return res.status(500).json({
+      message: "An unexpected error occurred",
       success: false,
     });
   }
 }
+
 module.exports = userSignInController;

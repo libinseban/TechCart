@@ -8,6 +8,7 @@ const authToken = (req, res, next) => {
       console.error("No token provided");
       return res.status(401).send("Access Denied. No token provided.");
     }
+
     next();
   } catch (error) {
     console.error("Invalid token", error);

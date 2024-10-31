@@ -94,8 +94,6 @@ const createOrder = async (userId, shippingAddress) => {
     });
     
 
-    console.log('Retrieved cart:', cart);
-
     if (!cart || !cart.cartItem || !cart.cartItem.length) {
       throw new Error('Cart or CartItems not found');
     }
@@ -117,7 +115,7 @@ const createOrder = async (userId, shippingAddress) => {
     const razorpayOptions = {
       amount: price, 
       currency: "INR",
-      receipt: `order_rcptid_${new Date().getTime()}`, 
+      receipt: `receipt_order_${Math.random() * 10000}`,
       payment_capture: paymentCapture
     };
 
