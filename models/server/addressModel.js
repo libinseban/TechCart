@@ -3,16 +3,10 @@ const mongoose=require('mongoose')
 const AddressShema=new mongoose.Schema({
 
 
-    firstName: {
-        type: String,
+  name: {
+    type: String,
         required: true,
-       
-      },
-      lastName: {
-        type: String,
-        required: true,
-       
-      },
+ },
       streetAddress: {
         type: String,
         required: true,

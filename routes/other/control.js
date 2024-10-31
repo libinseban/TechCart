@@ -3,9 +3,13 @@ const pendingSellers = express.Router();
 const Seller = require('../../models/client/seller');
 
 
-pendingSellers.get('/pendingSellers', async (req, res) => {
+pendingSellers.get('/pending', async (req, res) => {
     try {
         const pendingSellers = await Seller.find({ isApproved: false });
+
+        if (pendingSellers.length === 0) {
+            return res.json({ message: "There are no pending sellers" });
+        }
         res.json(pendingSellers);
     } catch (error) {
         console.error('Error fetching pending sellers:', error);

@@ -1,26 +1,13 @@
-/** @format */
-
 const express = require("express");
 const userRouter = express.Router();
-
 const userSignUpController = require("../../controller/userController/user.signup");
 const userSignInController = require("../../controller/userController/user.signIn");
 const userLogout = require("../../controller/userController/user.logout");
 const uploadImage = require("../other/uploadImage");
-const reviewRoutes = require("../service/reviewRoutes");
-const ratingRoutes = require("../service/ratingRoutes");
 const authenticate = require("../../middleware/authToken");
+const { newOrder, OrderHistory, findOrderById,} = require("../../controller/orderController/orderController");
 const {
-  newOrder,
-  OrderHistory,
-  findOrderById,
-} = require("../../controller/orderController/orderController");
-const {
-  updateWishList,
-  removeWishList,
-  getAllProducts,
-  getProduct,
-  moveProductToCart,
+  moveProductToCart, removeWishList, updateWishList, getWishlist, getWishlistProduct
 } = require("../../controller/productController/wishListController");
 const {
   findUserCartController,
@@ -30,20 +17,22 @@ const {
 } = require("../../controller/productController/cartControl");
 const {
   forgetPassword,
-  resetPassword,
-  getResetPassword,
+  resetPassword
 } = require("../../controller/userController/forgetPassword");
-const AllProducts = require("../../controller/productController/productControl");
+const ratingController = require('../../controller/productController/ratingController')
+const reviewController=require('../../controller/productController/reviewController')
+const {getAllProducts} = require("../../controller/productController/productControl");
 const { cancelOrder } = require("../../controller/service/orderSevice");
 
 userRouter.post("/signup",uploadImage, userSignUpController);
 userRouter.post("/signin", userSignInController);
 userRouter.post("/forget-password", forgetPassword);
-userRouter.post("/reset-password/:userToken", resetPassword);
-userRouter.get("/products", AllProducts.getAllProducts);
+userRouter.post("/reset-password/:userToken", resetPassword)
+userRouter.post("/logout", userLogout);
+userRouter.get("/products", getAllProducts);
 
-userRouter.get("/wish-list", authenticate, getAllProducts);
-userRouter.get("/wish-list/get/:productId", authenticate, getProduct);
+userRouter.get("/wish-list", authenticate, getWishlist);
+userRouter.get("/wish-list/get/:productId", authenticate, getWishlistProduct);
 userRouter.put("/wish-list/:productId", authenticate, updateWishList);
 userRouter.post(
   "/wish-list/moveToCart/:productId",
@@ -66,7 +55,9 @@ userRouter.put("/order", authenticate, newOrder);
 userRouter.get("/order/history", authenticate, OrderHistory);
 userRouter.get("/search/:productId", authenticate, findOrderById);
 userRouter.delete("/removeOrder", authenticate, cancelOrder);
-userRouter.use("/review", reviewRoutes);
-userRouter.use("/ratings", ratingRoutes);
-userRouter.post("/logout", userLogout);
+userRouter.post('/createRating/:productId',authenticate,ratingController.createRating);
+userRouter.get('/getAllRating/:productId', authenticate, ratingController.getAllRating);
+userRouter.post('/createReview/:productId',authenticate,reviewController.createReview);
+userRouter.get('/getReview/:productId',authenticate,reviewController.getAllReview);
+userRouter.delete('/deleteReview/:reviewId', authenticate, reviewController.deleteReview)
 module.exports = userRouter;

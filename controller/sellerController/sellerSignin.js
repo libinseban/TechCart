@@ -2,48 +2,55 @@ const Seller = require("../../models/client/seller");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const sellerSignIn = async (req, res) => {
-  const { email, password } = req.body;
+const sellerSignUp = async (req, res) => {
+  const { name, email, password, address, phoneNumber } = req.body;
 
   try {
-    if (!email || !password) {
+    // Check if all fields are provided
+    if (!name || !email || !password || !address || !phoneNumber) {
       return res.status(400).json({ message: "Please fill out all fields" });
     }
 
-    // Find the seller by email
-    const seller = await Seller.findOne({ email });
-  
-    if (!seller) {
-      return res.status(400).json({ message: "Seller doesn't exist" });
+    // Check if the seller already exists
+    const existingSeller = await Seller.findOne({ email });
+    if (existingSeller) {
+      return res.status(400).json({ message: "Seller already exists" });
     }
 
-    const checkPassword = await bcrypt.compare(password, seller.hashPassword);
-    if (!checkPassword) {
-      return res.status(400).json({ message: "Password is incorrect" });
-    }
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
 
-    // If the password is correct, generate a JWT token
+    // Create a new seller
+    const newSeller = new Seller({
+      name,
+      email,
+      hashPassword,
+      address,
+      phoneNumber,
+    });
+
+    await newSeller.save();
+
     const sellerData = {
-      _id: seller._id,
-      email: seller.email,
+      _id: newSeller._id,
+      email: newSeller.email,
     };
     const sellerToken = jwt.sign(sellerData, process.env.SELLER_SECRET_KEY, {
       expiresIn: "5d",
     });
 
-    localStorage.setItem('sellerId', sellerData._id);
+    res.cookie("sellerToken", sellerToken, { httpOnly: true, secure: true });
+    res.cookie("sellerId", newSeller._id.toString(), { httpOnly: true, secure: true });
 
-    // Send the token as a cookie and in the response body
-    res.cookie("sellerToken", sellerToken, { httpOnly: true, secure: true }).json({
-      success: "Login Successful",
-      token: sellerToken,
-      sellerData
+    res.status(201).json({
+      success: "Seller registered successfully",
+      newSeller,
     });
-
   } catch (error) {
-    console.error('Error during seller sign-in:', error);
-    return res.status(500).json({ message: error.message });
+    console.error('Error during seller sign-up:', error);
+    res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = sellerSignIn;
+module.exports = sellerSignUp;

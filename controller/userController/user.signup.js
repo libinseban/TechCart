@@ -21,7 +21,7 @@ const userSignUpController = async (req, res) => {
             hashPassword,
             firstName,
             lastName,
-            profilePic,
+            profilePic
            
         });
 
@@ -29,9 +29,13 @@ const userSignUpController = async (req, res) => {
         
         
         const userToken = jwt.sign({ id: user._id }, process.env.USER_SECRET_KEY, { expiresIn: '7 days' });
-
+        
         res.cookie('userToken', userToken, { httpOnly: true });
-
+        
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.cookie('userId', savedUser._id.toString(), { httpOnly: true, secure: isProduction });
+    
+        
         res.status(200).json({
             id: savedUser._id,
             data: savedUser,

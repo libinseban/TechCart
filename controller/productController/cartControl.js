@@ -5,7 +5,7 @@ const { default: mongoose } = require("mongoose");
 const Cart = require("../../models/cart/cartModel");
 
 const findUserCartController = async (req, res) => {
-  const { userId } = req.body;
+  const userId  = req.cookies.userId;
 
 
   try {
@@ -20,8 +20,8 @@ const findUserCartController = async (req, res) => {
 };
 
 const addItemCartController = async (req, res) => {
-  const { userId, productId, quantity } = req.body;
-  
+  const { productId, quantity } = req.body;
+  const userId = cookies.userId;
   if (!userId) {
     return res.status(400).send({ error: "User not authenticated" });
   }
@@ -36,7 +36,7 @@ const addItemCartController = async (req, res) => {
   }
 };
 const removeItemCartController = async (req, res) => {
-  const { userId } = req.body;
+  const userId  = req.cookies.userId;
   const { productId } = req.params;
   if (!userId) {
     return res.status(400).send({ error: "User not authenticated" });
@@ -52,14 +52,13 @@ const removeItemCartController = async (req, res) => {
 };
 
 const findUserCartById = async (req, res) => {
-  const { userId } = req.body;
+  const userId = req.cookies.userId;
   const { productId } = req.params;
 
   if (!userId) {
     return res.status(400).send({ error: "User not authenticated" });
   }
 
-  // Validate productId as ObjectId
   if (!mongoose.Types.ObjectId.isValid(productId)) {
     return res.status(400).send({ error: "Invalid product ID" });
   }

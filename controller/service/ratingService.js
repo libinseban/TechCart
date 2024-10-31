@@ -1,13 +1,14 @@
 const Rating = require('../../models/server/ratingModel.js');
 const Product = require('../../models/server/productModel.js');
+const User = require('../../models/client/userModel.js');
 
 async function createRating(productId, userId,ratingNumber) {
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate('rating');
 
   if (!product) {
     throw new Error("Product not found");
   }
-
+  
   const rating = new Rating({
     product: product._id,
     user: userId,

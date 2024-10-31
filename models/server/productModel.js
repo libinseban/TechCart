@@ -43,11 +43,11 @@ const productSchema = new mongoose.Schema({
     }],
     ratings: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "rating",
+        ref: "Rating",
     }],
     reviews: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "review",
+        ref: "Review",
     }],
     numRatings: {
         type: Number,

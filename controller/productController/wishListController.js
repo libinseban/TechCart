@@ -7,8 +7,11 @@ const { addCartItem } = require('../service/cartService');
 const ObjectId = mongoose.Types.ObjectId;
 
 const updateWishList = async (req, res) => {
-  const { userId } = req.body;
-const {productId}=req.params;
+
+  const userId = req.cookies.userId;
+
+  const { productId } = req.params;
+  
   if (!mongoose.Types.ObjectId.isValid(productId) || !mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).send({ error: 'Invalid productId or userId' });
   }
@@ -39,7 +42,8 @@ const {productId}=req.params;
 };
 
 const removeWishList = async (req, res) => {
-  const { userId } = req.body;
+  const userId = req.cookies.userId;
+
   const { productId } = req.params; 
 
   try {
@@ -70,9 +74,9 @@ const removeWishList = async (req, res) => {
   }
 };
 
-const getAllProducts = async (req, res) => {
-  const { userId } = req.body;
-  
+const getWishlist = async (req, res) => {
+
+  const userId = req.cookies.userId;
   try {
     const wishlist = await wishList.findOne({ user: userId }).populate('products.product');
 
@@ -96,8 +100,8 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-const getProduct = async (req, res) => {
-  const { userId } = req.body;
+const getWishlistProduct = async (req, res) => {
+  const userId = req.cookies.userId;
   const { productId } = req.params;
 
   try {
@@ -123,7 +127,9 @@ const getProduct = async (req, res) => {
 };
 
 const moveProductToCart = async (req, res) => {
-  const { userId, quantity } = req.body;
+  const {  quantity } = req.body;
+  const userId = req.cookies.userId;
+
   const { productId } = req.params;
 
   try {
@@ -156,4 +162,4 @@ const moveProductToCart = async (req, res) => {
   }
 };
 
-module.exports = { moveProductToCart, removeWishList, updateWishList, getAllProducts, getProduct };
+module.exports = { moveProductToCart, removeWishList, updateWishList, getWishlist, getWishlistProduct };

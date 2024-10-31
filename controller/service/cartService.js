@@ -25,33 +25,29 @@ async function findUserCart(userId) {
 
     const cartItems = cart.cartItem;
 
-    // Initialize totals
     let totalPrice = 0;
     let totalDiscountPrice = 0;
     let totalItem = 0;
 
-    // Calculate totals and construct the response with quantities
     const productsWithQuantities = cartItems.map(({ product, price, discountPrice, quantity }) => {
       totalPrice += price * quantity;
       totalDiscountPrice += discountPrice * quantity;
       totalItem += quantity;
 
       return {
-        productId: product ? product._id : null, // Ensure product ID is included
+        productId: product ? product._id : null, 
         quantity,
         price,
         discountPrice,
       };
     });
 
-    // Filter out any null product IDs
     const filteredProducts = productsWithQuantities.filter(item => item.productId !== null);
 
-    // Return the cart summary with products and quantities
     return {
       cart: cart._id,
       user: cart.user,
-      products: filteredProducts, // Include product details and quantities
+      products: filteredProducts,
       totalDiscountPrice,
       totalPrice,
       totalItem,

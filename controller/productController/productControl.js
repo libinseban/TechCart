@@ -1,5 +1,4 @@
 
-
 const Category = require("../../models/cart/category");
 const Product = require("../../models/server/productModel");
 
@@ -28,8 +27,6 @@ const createProduct = async (req, res) => {
     await foundCategory.save();
   }
 
-  console.log("Request Body:", req.body);
-  console.log("Uploaded Images:", productImages);
 
   if (
     !title ||
@@ -86,7 +83,7 @@ const updateProduct = async (req, res) => {
     "color",
     "productImages",
   ];
-
+const productId=req.params.productId
   const updates = Object.keys(req.body).reduce((acc, key) => {
     if (allowedUpdates.includes(key)) {
       acc[key] = req.body[key];
@@ -131,7 +128,7 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-  const productId = req.params.id;
+  const productId = req.params.productId;
   try {
     const product = await Product.findByIdAndDelete(productId);
 
@@ -147,7 +144,7 @@ const deleteProduct = async (req, res) => {
 };
 
 const findProductById = async (req, res) => {
-  const productId = req.params.id;
+  const productId = req.params.productId;
   try {
     const product = await Product.findById(productId).populate(
       "ratings reviews category"

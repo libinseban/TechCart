@@ -3,7 +3,9 @@ const Reviews = require("../../models/server/review")
 
 
 const createReview = async (req, res) => {
-  const {userId,productId,reviewByUser} = req.body;
+  const { productId, reviewByUser } = req.body;
+  const userId = req.cookies.userId;
+
   try {
     const review = await ReviewServices.createReview(productId, userId,reviewByUser);
     return res.status(201).send(review);

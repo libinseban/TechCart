@@ -1,7 +1,8 @@
 const { createOrder, findOrder, userOrderHistory } = require("../service/orderSevice");
 
 const newOrder = async (req, res) => {
-  const { userId, shippingAddress } = req.body;
+  const {shippingAddress } = req.body;
+  const userId = req.cookies.userId;
   if (!userId || !shippingAddress) {
     return res.status(400).send({ error: 'User ID and shipping address are required' });
   }
@@ -13,7 +14,7 @@ const newOrder = async (req, res) => {
   }
 };
 const findOrderById = async (req, res) => {
-  const { userId } = req.body;
+  const userId=req.cookies.userId
   const { productId } = req.params;
 
  
@@ -28,7 +29,8 @@ const findOrderById = async (req, res) => {
 
 
 const OrderHistory = async (req, res) => {
-  const { userId } = req.body;
+  const userId=req.cookies.userId
+
 
   try {
     if (!userId) {

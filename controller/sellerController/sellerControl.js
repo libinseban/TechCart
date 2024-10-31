@@ -15,9 +15,10 @@ const createProduct = async (req, res) => {
     brand,
     color,
     category,
-    sellerId,
   } = req.body;
 
+  const sellerId = req.cookies.sellerId
+  
   console.log("Request Body:", req.body);
   
   const productImages = req.uploadedImages;
@@ -71,7 +72,8 @@ const createProduct = async (req, res) => {
 
 
 const updateProduct = async (req, res) => {
- 
+  const productId = req.params.productId
+  const sellerId=req.cookies.sellerId
   const allowedUpdates = [
       "title",
       "description",
@@ -127,7 +129,7 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
   const productId = req.params.productId;
-  const sellerId = req.body.sellerId;
+  const sellerId = req.cookies.sellerId;
 
   try {
     const product = await Product.findOneAndDelete({
@@ -153,7 +155,7 @@ const deleteProduct = async (req, res) => {
 
 const findProductById = async (req, res) => {
   const productId = req.params.productId;
-  const sellerId = req.body.sellerId;
+  const sellerId = req.cookies.sellerId;
 
   console.log("product id", productId)
   console.log("seller id", sellerId)
@@ -180,8 +182,7 @@ const findProductById = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const sellerId = req.params.sellerId;
-  console.log("SellerId received:", sellerId);
+  const sellerId = req.cookies.sellerId;
 
   if (!mongoose.Types.ObjectId.isValid(sellerId)) {
     return res.status(400).json({ error: "Invalid sellerId" });
@@ -200,8 +201,11 @@ const getAllProducts = async (req, res) => {
 };
 
 const createMultipleProducts = async (req, res) => {
-  const { sellerId, products } = req.body;
 
+  const { products } = req.body;
+
+  const sellerId = req.cookies.sellerId
+  
   if (!mongoose.Types.ObjectId.isValid(sellerId)) {
     return res.status(400).json({ error: "Invalid sellerId" });
   }

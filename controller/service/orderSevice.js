@@ -11,17 +11,34 @@ require('dotenv').config();
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.ADMIN_EMAIL,
-    pass: process.env.ADMIN_PASSWORD
+    user: process.env.OWNER_EMAIL,
+    pass: process.env.OWNER_PASSWORD
   }
 });
-
-async function sendEmail( subject, text) {
+async function sendEmail(sellerEmail, sellerName, subject, productNames, orderAddress, orderDate) {
   const mailOptions = {
     from: process.env.ADMIN_EMAIL,
-    to:sellerEmail,
+    to: sellerEmail,
     subject,
-    html: `<p>Dear Seller,</p><p>${text}</p><p>Best regards,<br>Your Company</p> ${message}`
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h3 style="color:blue">Dear ${sellerName},</h3>
+        <p>A new order has been placed for your  product:</p>
+        <ul style="list-style-type: circle; padding-left: 20px;">
+          ${productNames}
+        </ul>
+        
+        <h4>Shipping Details</h4>
+        <p><strong>Name:</strong> ${orderAddress.name}<br>
+        <strong>Address:</strong> ${orderAddress.streetAddress}, ${orderAddress.city}, ${orderAddress.state} - ${orderAddress.zipCode}<br>
+        <strong>Contact Number:</strong> ${orderAddress.phoneNumber}</p>
+        
+        <p><strong>Order Date:</strong> ${orderDate.toLocaleDateString()}</p>
+        
+        <p>Thank you for your partnership. We will keep you informed of any updates regarding this order.</p>
+        
+        <p>Best regards<br></p>
+      </div>`
   };
 
   try {
@@ -31,6 +48,7 @@ async function sendEmail( subject, text) {
     console.error('Error sending email:', error);
   }
 }
+
 
 
 const razorpayInstance = new Razorpay({
@@ -47,7 +65,7 @@ const createOrder = async (userId, shippingAddress) => {
     }
 
     if (!address) {
-      const requiredFields = ['firstName', 'lastName', 'streetAddress', 'city', 'state', 'zipCode', 'phoneNumber'];
+      const requiredFields = ["name", 'streetAddress', 'city', 'state', 'zipCode', 'phoneNumber'];
       for (const field of requiredFields) {
         if (!shippingAddress[field]) {
           throw new Error(`Missing required address field: ${field}`);
@@ -70,9 +88,11 @@ const createOrder = async (userId, shippingAddress) => {
       path: 'cartItem',
       populate: {
         path: 'product',
-        select: 'price discountPrice'
+        select: 'price discountPrice seller title', 
+        populate: { path: 'seller', select: 'email' }
       }
     });
+    
 
     console.log('Retrieved cart:', cart);
 
@@ -85,7 +105,7 @@ const createOrder = async (userId, shippingAddress) => {
     let totalItem = 0;
 
     cart.cartItem.forEach(item => {
-      totalPrice += (item.product.price * item.quantity) - item.product.discountPrice;
+      totalPrice += (item.product.price * item.quantity)
       totalDiscountPrice += item.product.discountPrice * item.quantity;
       totalItem += item.quantity;
     });
@@ -95,7 +115,7 @@ const createOrder = async (userId, shippingAddress) => {
 
     const paymentCapture = 1; 
     const razorpayOptions = {
-      amount: price * 100, 
+      amount: price, 
       currency: "INR",
       receipt: `order_rcptid_${new Date().getTime()}`, 
       payment_capture: paymentCapture
@@ -107,14 +127,14 @@ const createOrder = async (userId, shippingAddress) => {
     const order = new Order({
       user: userId,
       orderDate: new Date(),
-      address: address._id,
+      address: address,
       totalPrice,
       totalDiscountPrice,
       totalItem,
       price,
       products,
       paymentId: razorpayOrder.id,  
-      paymentStatus: 'Pending',    
+      orderStatus: 'PENDING',    
     });
 
     await order.save();
@@ -125,7 +145,6 @@ const createOrder = async (userId, shippingAddress) => {
       { new: true }
     );
 
-    console.log('Cart cleared:', updateResult);
 
     const sellers = new Set();
     cart.cartItem.forEach(item => {
@@ -136,20 +155,37 @@ const createOrder = async (userId, shippingAddress) => {
 
     for (const sellerId of sellers) {
       const seller = await Seller.findById(sellerId);
+      
+      const sellerProducts = cart.cartItem
+        .filter(item => item.product.seller.toString() === sellerId.toString())
+        .map(item => item.product.title) 
+      
+      const productNames = sellerProducts.join(", "); 
+
       if (seller && seller.email) {
+        console.log(`Attempting to send email to seller: ${seller.email}`);
         await sendEmail(
           seller.email,
+          seller.name,
           'New Order Placed',
-          `A new order has been placed. Order ID: ${order._id}.`
+          productNames,
+          order.address,
+          order.orderDate
         );
+        
+        console.log(`Email sent to seller: ${seller.email}`);
+      } else {
+        console.warn(`No email found for seller with ID: ${sellerId}`);
       }
     }
+    
+    
 
     return {
       message: 'Order placed successfully, awaiting payment',
       order,
       razorpayOrderId: razorpayOrder.id, 
-      amount: price * 100,               
+      amount: price,               
       currency: "INR"
     };
   } catch (error) {
@@ -159,40 +195,10 @@ const createOrder = async (userId, shippingAddress) => {
 };
 
 
-async function confirmOrder(orderId) {
-  try {
-    const order = await findOrder(orderId);
-    order.orderStatus = "CONFIRMED";
-    return await order.save();
-  } catch (error) {
-    console.error("Error confirming order:", error);
-    throw error;
-  }
-}
 
-async function shipOrder(orderId) {
-  try {
-    const order = await findOrder(orderId);
-    order.orderStatus = "SHIPPED";
-    return await order.save();
-  } catch (error) {
-    console.error("Error shipping order:", error);
-    throw error;
-  }
-}
-
-async function deliverOrder(orderId) {
-  try {
-    const order = await findOrder(orderId);
-    order.orderStatus = "DELIVERED";
-    return await order.save();
-  } catch (error) {
-    console.error("Error delivering order:", error);
-    throw error;
-  }
-}
 const cancelOrder = async (req, res) => {
-  const  {userId,productId}  = req.body;
+  const { productId } = req.body;
+  const userId = req.cookies.userId;
   try {
     const orders = await findOrder(productId, userId);
     
@@ -202,14 +208,15 @@ const cancelOrder = async (req, res) => {
     
     await Order.findByIdAndUpdate(order.orderId, { orderStatus: "CANCELLED" });
     
-    // Notify sellers
+    
     for (const product of order.products) {
       const productDetails = await Product.findById(productId).populate('seller');
       
       if (productDetails && productDetails.seller && productDetails.seller.email) {
         const sellerEmail = productDetails.seller.email;
         const subject = `Order ${order.orderId} Cancelled`;
-        const message = `Dear ${productDetails.seller.name}, the order containing your product has been cancelled by the user.`;
+        const message = `Dear ${productDetails.seller.name}, the order containing your product
+         ${productDetails.title} has been cancelled by the user.`;
 
         await sendEmail(sellerEmail, subject, message);
       }
@@ -227,10 +234,14 @@ async function findOrder(productId, userId) {
   try {
     const orders = await Order.find({
       user: userId,
-      orderStatus: { $in: ["PLACED", "PENDING"] }
+      orderStatus: { $in: ["CONFIRMED", "PENDING", "SHIPPED"] }
     })
-    .populate('products') 
+    .populate({
+      path: 'products',
+      select: '_id title',  
+    })
     .lean();
+    
     
     const orderStatuses = orders.map(order => ({
       orderId: order._id,
@@ -254,11 +265,11 @@ async function findOrder(productId, userId) {
     try {
       const orders = await Order.find({
         user: userId,
-        orderStatus: { $in: ["PLACED", "PENDING"] }
+        orderStatus: { $in: [ "PENDING","CONFIRMED"] }
       })
         .populate({
           path: 'user',
-          select: 'username email' 
+          select: 'name email' 
         })
         .lean();
   
@@ -272,49 +283,13 @@ async function findOrder(productId, userId) {
       throw error;
     }
   }
-  
 
 
-  
-  async function getAllOrders(userId) {
-    try {
-      const orders = await Order.find({ user: userId })
-        .populate({
-          path: 'orderItems',
-          populate: {
-            path: 'product',
-            model: 'Product',
-          },
-        })
-        .lean();
-  
-      return orders;
-    } catch (error) {
-      console.error("Error retrieving user order history:", error);
-      throw error;
-    }
-  }
-  
-
-  async function deleteOrder(orderId) {
-    try {
-      const order = await findOrder(orderId);
-      await Order.findByIdAndDelete(order._id);
-    } catch (error) {
-      console.error("Error deleting order:", error);
-      throw error;
-    }
-  }
 
   module.exports = {
     createOrder,
-    confirmOrder,
-    shipOrder,
-    deliverOrder,
     cancelOrder,
     findOrder,
     userOrderHistory,
-    getAllOrders,
-    deleteOrder
   }
 

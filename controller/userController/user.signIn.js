@@ -34,10 +34,9 @@ async function userSignInController(req, res) {
       }
     }
 
-    // Check if the user is a regular user
     const user = await userModel.findOne({ email });
     if (user) {
-      const isPasswordMatch =  bcrypt.compare(password, user.hashPassword);
+      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword);
       if (isPasswordMatch) {
         const tokenData = {
           _id: user._id,
@@ -45,8 +44,7 @@ async function userSignInController(req, res) {
           role: 'user',
         };
         const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
-
-        // Send token in response
+        
         return res.cookie("userToken", userToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }).json({
           success: true,
           message: "Login Successful",
@@ -56,10 +54,12 @@ async function userSignInController(req, res) {
           
         });
       }
+    } else {
+      res.status(400).json({message:"email id not found"})
     }
 
     return res.status(400).json({
-      message: "Invalid email or password",
+      message: "Incorrect Password",
       success: false,
     });
     

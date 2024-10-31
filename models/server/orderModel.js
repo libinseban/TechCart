@@ -1,4 +1,4 @@
-/** @format */
+
 
 const { default: mongoose } = require("mongoose");
 
@@ -19,9 +19,10 @@ const orderSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ["PENDING", "SHIPPED", "DELIVERED", "CANCELLED"],
+    enum: ["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"],
     default: "PENDING",
-  },
+},
+
   totalPrice: {
     type: Number,
     required: true,
@@ -41,8 +42,8 @@ const orderSchema = new mongoose.Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['Pending', 'Completed', 'Failed', 'Refunded'], 
-    default: 'Pending'
+    enum: ['Success', 'Completed', 'Failed', 'Refunded'], 
+    default: 'Success'
 },
   transactionId: {
     type: String,
