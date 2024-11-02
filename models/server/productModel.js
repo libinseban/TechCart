@@ -17,12 +17,14 @@ const productSchema = new mongoose.Schema({
     },
     discountPrice: {
         type: Number,
-        required: true,
-    },
-    discountPercentage: { 
+        default:0
+       }
+    ,
+    discountPercentage: {
         type: Number,
-        required: true,
-    },
+        default: 0
+    }
+,    
     quantity: {
         type: Number,
         default: 1,
@@ -57,8 +59,7 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    category: [{ type:String, ref: 'Category', required: true }],
-
+    category: { type: String },
     seller: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Seller' }]
 });
 

@@ -27,19 +27,22 @@ const createProduct = async (req, res) => {
     await foundCategory.save();
   }
 
+  const parsedPrice = parseFloat(price.toString().replace(/,/g, ''));
+  const parsedDiscountPrice = parseFloat(discountPrice.toString().replace(/,/g, ''));
+  const parsedDiscountPercentage = parseFloat(discountPercentage.toString().replace(/,/g, ''));
 
   if (
     !title ||
-    !price ||
-    !discountPrice ||
-    !discountPercentage ||
+    isNaN(parsedPrice) ||
+    isNaN(parsedDiscountPrice) ||
+    isNaN(parsedDiscountPercentage) ||
     !brand ||
     !color ||
     !category
   ) {
-    return res
-      .status(400)
-      .json({ error: "Please provide all required fields including category" });
+    return res.status(400).json({
+      error: "Please provide all required fields with valid price and discount values",
+    });
   }
 
   console.log("Creating product...");
@@ -48,9 +51,9 @@ const createProduct = async (req, res) => {
     const newProduct = new Product({
       title,
       description,
-      price,
-      discountPrice,
-      discountPercentage,
+      price: parsedPrice,
+      discountPrice: parsedDiscountPrice,
+      discountPercentage: parsedDiscountPercentage,
       quantity,
       brand,
       color: color.split(","),
@@ -60,18 +63,21 @@ const createProduct = async (req, res) => {
 
     await newProduct.save();
 
-    return res
-      .status(201)
-      .json({ message: "Product created successfully", product: newProduct });
+    return res.status(201).json({
+      message: "Product created successfully",
+      product: newProduct,
+    });
   } catch (error) {
     console.error("Error in createProduct controller:", error.message);
     if (!res.headersSent) {
-      return res
-        .status(500)
-        .json({ message: "Error creating product", error: error.message });
+      return res.status(500).json({
+        message: "Error creating product",
+        error: error.message,
+      });
     }
   }
 };
+
 
 const updateProduct = async (req, res) => {
   const allowedUpdates = [
@@ -162,17 +168,39 @@ const findProductById = async (req, res) => {
 };
 
 const getAllProducts = async (req, res) => {
-  const { category } = req.body; 
+  const category = req.query.category;
+  console.log("Received category query:", category);
 
   try {
-    const filter = category ? { category } : {}; 
+    let filter = {};
+
+    if (category) {
+      console.log("Checking category:", category);
+
+      const foundCategory = await Category.findOne({
+        name: new RegExp(`^${category.trim().toLowerCase()}$`, 'i'),
+      });
+
+      if (!foundCategory) {
+        console.log("Category not found for name:", category);
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      console.log("Found category ID:", foundCategory._id);
+      filter = { category: foundCategory._id };
+    }
+
     const products = await Product.find(filter).populate("category");
-    return res.status(200).json(products);
+    console.log("Fetched products:", products);
+
+    // Optionally return an empty array instead of a 404
+    return res.status(200).json(products.length ? products : []);
   } catch (error) {
-    console.error("Error fetching products:", error.message);
-    return res.status(500).json({ error: error.message });
+    console.error("Error fetching products:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 const createMultipleProducts = async (req, res) => {
