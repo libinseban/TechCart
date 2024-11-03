@@ -11,7 +11,15 @@ const userShema=new mongoose.Schema({
         required: true,
        
   },
-  profilePic: { type: String },
+  profilePic: { 
+    type: String,
+    validate: {
+      validator: function(v) {
+        return /https?:\/\/.+/.test(v); 
+      },
+      message: props => `${props.value} is not a valid URL!`
+    }
+  },
   
       hashPassword: {
         type: String,

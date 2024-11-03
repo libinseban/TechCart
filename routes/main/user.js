@@ -23,12 +23,14 @@ const ratingController = require('../../controller/productController/ratingContr
 const reviewController=require('../../controller/productController/reviewController')
 const {getAllProducts} = require("../../controller/productController/productControl");
 const { cancelOrder } = require("../../controller/service/orderSevice");
+const getUserImage=require("../../controller/userController/profilePicture")
 
 userRouter.post("/signup",uploadImage, userSignUpController);
 userRouter.post("/signin", userSignInController);
 userRouter.post("/forget-password", forgetPassword);
 userRouter.post("/reset-password/:userToken", resetPassword)
 userRouter.post("/logout", userLogout);
+userRouter.get("/profile",authenticate,getUserImage.profilePicture)
 userRouter.get("/products", getAllProducts);
 
 userRouter.get("/wish-list", authenticate, getWishlist);
