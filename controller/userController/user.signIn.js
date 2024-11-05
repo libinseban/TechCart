@@ -24,14 +24,15 @@ async function userSignInController(req, res) {
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
 
         // Send token in response
-        return res.cookie("access_token", token, {
+        res.cookie("adminToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Lax', // or 'Strict'
-        }).json({
+          sameSite: 'Lax',
+        });
+
+        return res.json({
           success: true,
           message: "Login Successful",
-          token: token,
           role: 'admin',
           redirectUrl: "/adminDashboard"
         });
@@ -41,7 +42,7 @@ async function userSignInController(req, res) {
     // Check if the user is a regular user
     const user = await userModel.findOne({ email });
     if (user) {
-      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword);
+      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword); // Ensure this matches your schema field name
       if (isPasswordMatch) {
         const tokenData = {
           _id: user._id,
@@ -49,21 +50,28 @@ async function userSignInController(req, res) {
           role: 'user',
         };
         const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
-res.cookie("userId",user._id.toString(),{httpOnly:true,secure:process.env.NODE_ENV==="production"})
-        return res.cookie("userToken", userToken, {
+        
+        // Set cookies
+        res.cookie("userId", user._id.toString(), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+        });
+
+        res.cookie("userToken", userToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Lax', 
-        }).json({
+          sameSite: 'Lax',
+        });
+
+        return res.json({
           success: true,
           message: "Login Successful",
-          token: userToken,
           role: 'user',
         });
       }
-    } 
+    }
 
-
+    // If no matches found
     return res.status(400).json({
       message: "Email or password is incorrect",
       success: false,
