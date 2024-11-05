@@ -55,10 +55,12 @@ console.log(token);
         res.cookie("userId", user._id, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
+          sameSite: 'None',
         });
         res.cookie("userToken", userToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production'
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'None',
           
         });
 

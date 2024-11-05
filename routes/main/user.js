@@ -32,6 +32,10 @@ userRouter.post("/reset-password/:userToken", resetPassword)
 userRouter.post("/logout", userLogout);
 userRouter.get("/profile",authenticate,getUserImage.profilePicture)
 userRouter.get("/products", getAllProducts);
+userRouter.get("/api/test-cookie", (req, res) => {
+  res.json({ userToken: req.cookies.userToken });
+});
+
 
 userRouter.get("/wish-list", authenticate, getWishlist);
 userRouter.get("/wish-list/get/:productId", authenticate, getWishlistProduct);
