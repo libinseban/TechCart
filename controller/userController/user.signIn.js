@@ -22,6 +22,7 @@ async function userSignInController(req, res) {
           role: 'admin',
         };
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
+console.log(token);
 
         // Send token in response
         res.cookie("adminToken", token, {
@@ -39,10 +40,9 @@ async function userSignInController(req, res) {
       }
     }
 
-    // Check if the user is a regular user
     const user = await userModel.findOne({ email });
     if (user) {
-      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword); // Ensure this matches your schema field name
+      const isPasswordMatch = await bcrypt.compare(password, user.hashPassword);
       if (isPasswordMatch) {
         const tokenData = {
           _id: user._id,
@@ -51,16 +51,15 @@ async function userSignInController(req, res) {
         };
         const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
         
-        // Set cookies
-        res.cookie("userId", user._id.toString(), {
+        
+        res.cookie("userId", user._id, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
         });
-
         res.cookie("userToken", userToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Lax',
+          secure: process.env.NODE_ENV === 'production'
+          
         });
 
         return res.json({

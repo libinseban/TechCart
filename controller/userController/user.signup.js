@@ -33,6 +33,7 @@ const userSignUpController = async (req, res) => {
         const userToken = jwt.sign({ id: savedUser._id }, process.env.USER_SECRET_KEY, { expiresIn: '7 days' });
 
         const isProduction = process.env.NODE_ENV === 'production';
+        
         res.cookie('userToken', userToken, { httpOnly: true, secure: isProduction, sameSite: 'None' });
         res.cookie('userId', savedUser._id.toString(), { httpOnly: true, secure: isProduction, sameSite: 'None' });
 
