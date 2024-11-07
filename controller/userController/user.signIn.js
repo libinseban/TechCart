@@ -24,11 +24,10 @@ async function userSignInController(req, res) {
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
 console.log(token);
 
-        // Send token in response
         res.cookie("adminToken", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'Lax',
+          sameSite: 'None',
         });
 
         return res.json({
@@ -52,17 +51,20 @@ console.log(token);
         const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
         
         
-        res.cookie("userId", user._id, {
+        res.cookie("userId", user._id.toString(), {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: 'None',
         });
+
+        
         res.cookie("userToken", userToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'None',
           
         });
+        console.log("Set userToken cookie for user:", user._id); 
 
         return res.json({
           success: true,

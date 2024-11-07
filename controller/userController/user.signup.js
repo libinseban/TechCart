@@ -35,7 +35,7 @@ const userSignUpController = async (req, res) => {
         const isProduction = process.env.NODE_ENV === 'production';
 
         res.cookie('userToken', userToken, { httpOnly: true, secure: isProduction, sameSite: 'None' });
-        res.cookie('userId', savedUser._id, { httpOnly: true, secure: isProduction, sameSite: 'None' });
+        res.cookie('userId', savedUser._id.toString(), { httpOnly: true, secure: isProduction, sameSite: 'None' });
 
         res.status(201).json({
             id: savedUser._id,

@@ -1,7 +1,7 @@
 const User = require("../../models/client/userModel");
 
 const profilePicture = async (req, res) => {
-    const userId = req.cookies.userId;
+    const userId = req.cookies.userId; 
     console.log(userId);
 
     if (!userId) {
@@ -11,7 +11,7 @@ const profilePicture = async (req, res) => {
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "User  not found" });
         }
 
         if (!user.profilePic) {
