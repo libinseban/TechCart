@@ -34,7 +34,6 @@ const adminSignIn = async (req, res) => {
                 expiresIn: "1d",
             });
           
-       // Send token in response
 res.cookie("access_token", token, { httpOnly: true, secure: true }).json({
     success: "Login Successful",
     token: token,

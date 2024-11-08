@@ -41,6 +41,7 @@ const userSignUpController = async (req, res) => {
             id: savedUser._id,
             data: savedUser,
             success: "User Created Successfully",
+            
             error: false
         });
 

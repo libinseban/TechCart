@@ -1,4 +1,3 @@
-
 const express = require("express");
 const connectDb = require("./config/db");
 const userRouter = require("./routes/main/user");
@@ -10,21 +9,18 @@ require("dotenv").config();
 
 const app = express();
 
-const allowedOrigins = [
-  "https://frondend-alpha.vercel.app",
-  "http://localhost:5173",
-];
+const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5173'];
 
-app.use(
-  cors({
+app.use(cors({
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"],
-    credentials: true,
-  })
-);
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    credentials: true
+}));
 
-app.options("*", cors());
+
+
+app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(express.json());
@@ -35,12 +31,12 @@ app.use("/api/seller", seller);
 app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
-  res.json("home page");
+    res.json("home page");
 });
 
 const PORT = process.env.PORT || 8000;
 connectDb().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running at ${PORT}`);
-  });
+    app.listen(PORT, () => {
+        console.log(`Server running at ${PORT}`);
+    });
 });

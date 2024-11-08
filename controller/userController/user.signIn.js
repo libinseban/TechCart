@@ -11,7 +11,7 @@ async function userSignInController(req, res) {
       return res.status(400).json({ message: "Please provide email and password", success: false });
     }
 
-    // Check if the user is an admin
+    // Check if admin exists
     const admin = await Admin.findOne({ email });
     if (admin) {
       const isPasswordMatch = await bcrypt.compare(password, admin.password);
@@ -21,20 +21,20 @@ async function userSignInController(req, res) {
           email: admin.email,
           role: 'admin',
         };
-        const token = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
-console.log(token);
+        const adminToken = jwt.sign(tokenData, process.env.TOKEN_SECRET_KEY, { expiresIn: "1d" });
 
-        res.cookie("adminToken", token, {
+        res.cookie("access_token", adminToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'None',
+          sameSite: 'Lax',
         });
 
         return res.json({
           success: true,
           message: "Login Successful",
           role: 'admin',
-          redirectUrl: "/adminDashboard"
+          redirectUrl: "/adminDashboard",
+          adminToken
         });
       }
     }
@@ -48,33 +48,28 @@ console.log(token);
           email: user.email,
           role: 'user',
         };
-        const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5 days" });
-        
-        
+        const userToken = jwt.sign(tokenData, process.env.USER_SECRET_KEY, { expiresIn: "5d" });
+
         res.cookie("userId", user._id.toString(), {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: 'None',
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
         });
-
-        
         res.cookie("userToken", userToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'None',
-          
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
         });
-        console.log("Set userToken cookie for user:", user._id); 
 
         return res.json({
           success: true,
           message: "Login Successful",
           role: 'user',
+          userToken
         });
       }
     }
 
-    // If no matches found
     return res.status(400).json({
       message: "Email or password is incorrect",
       success: false,
