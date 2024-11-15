@@ -2,7 +2,7 @@ const User = require("../../models/client/userModel");
 
 const profilePicture = async (req, res) => {
     const userId = req.cookies.userId; 
-    console.log(userId);
+    console.log(userId, "user id");
 
     if (!userId) {
         return res.status(401).json({ message: "Unauthorized" });

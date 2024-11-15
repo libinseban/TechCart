@@ -14,6 +14,8 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
 router.use('/', (req, res, next) => {
+ 
+  
   upload.single('profilePic')(req, res, function (err) {
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ message: 'File upload error', error: err.message });
