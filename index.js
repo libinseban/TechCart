@@ -9,16 +9,17 @@ require("dotenv").config();
 
 const app = express();
 
-const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5173' ,'http://localhost:5174'];
-
-app.use(cors({
-    origin: allowedOrigins,
+const corsOptions = {
+    origin: ['https://frondend-alpha.vercel.app', 'http://localhost:5173', 'http://localhost:5174'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-    exposedHeaders: ['set-cookie']
-   
-}));
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['set-cookie'],
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    secure: process.env.NODE_ENV === 'production'
+};
+
+app.use(cors(corsOptions));
 
 
 
