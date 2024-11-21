@@ -24,7 +24,7 @@ const reviewController=require('../../controller/productController/reviewControl
 const {getAllProducts} = require("../../controller/productController/productControl");
 const { cancelOrder } = require("../../controller/service/orderSevice");
 const getUserImage=require("../../controller/userController/profilePicture")
-
+const {submitContact} = require("../../controller/orderController/contactController");
 userRouter.post("/signup",uploadImage, userSignUpController);
 userRouter.post("/signin", userSignInController);
 userRouter.post("/forget-password", forgetPassword);
@@ -32,6 +32,7 @@ userRouter.post("/reset-password/:userToken", resetPassword)
 userRouter.post("/logout", userLogout);
 userRouter.get("/profile",authenticate,getUserImage.profilePicture)
 userRouter.get("/products", getAllProducts);
+userRouter.post("/contact", submitContact);
 userRouter.get("/api/test-cookie", (req, res) => {
   res.json({ userToken: req.cookies.userToken });
 });
