@@ -11,7 +11,6 @@ async function userSignInController(req, res) {
       return res.status(400).json({ message: "Please provide email and password", success: false });
     }
 
-    // Check if admin exists
     const admin = await Admin.findOne({ email });
     if (admin) {
       const isPasswordMatch = await bcrypt.compare(password, admin.password);
@@ -34,7 +33,7 @@ async function userSignInController(req, res) {
           message: "Login Successful",
           role: 'admin',
           redirectUrl: "/adminDashboard",
-          access_token
+          access_token: adminToken
         });
       }
     }

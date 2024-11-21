@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const app = express();
 
-const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5173'];
+const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
     origin: allowedOrigins,
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
     res.json("home page");
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 connectDb().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running at ${PORT}`);
