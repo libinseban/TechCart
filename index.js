@@ -13,9 +13,11 @@ const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5
 
 app.use(cors({
     origin: allowedOrigins,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    exposedHeaders: ['set-cookie']
+   
 }));
 
 
@@ -34,7 +36,7 @@ app.get("/", (req, res) => {
     res.json("home page");
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 connectDb().then(() => {
     app.listen(PORT, () => {
         console.log(`Server running at ${PORT}`);
