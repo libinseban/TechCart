@@ -13,9 +13,11 @@ const allowedOrigins = ['https://frondend-alpha.vercel.app', 'http://localhost:5
 
 app.use(cors({
     origin: allowedOrigins,
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    exposedHeaders: ['set-cookie']
+   
 }));
 
 
