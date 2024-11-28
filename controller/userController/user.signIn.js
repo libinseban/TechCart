@@ -32,13 +32,8 @@ async function userSignInController(req, res) {
           success: true,
           message: "Login Successful",
           role: 'admin',
-<<<<<<< HEAD
-          redirectUrl: "/adminDashboard",
-          access_token: adminToken
-=======
           redirectUrl: "/admin-dashboard",
-          access_token:adminToken
->>>>>>> 30b190c118387e074c1b1a672a21a83e1bf7d88e
+          access_token: adminToken
         });
       }
     }
