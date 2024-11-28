@@ -32,8 +32,13 @@ async function userSignInController(req, res) {
           success: true,
           message: "Login Successful",
           role: 'admin',
+<<<<<<< HEAD
           redirectUrl: "/adminDashboard",
           access_token: adminToken
+=======
+          redirectUrl: "/admin-dashboard",
+          access_token:adminToken
+>>>>>>> 30b190c118387e074c1b1a672a21a83e1bf7d88e
         });
       }
     }
@@ -52,12 +57,14 @@ async function userSignInController(req, res) {
         res.cookie("userId", user._id.toString(), {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    path: '/'
         });
         res.cookie("userToken", userToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+    path: '/'
         });
 
         return res.json({
