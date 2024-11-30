@@ -9,7 +9,7 @@ require("dotenv").config();
 
 const app = express();
 
-const allowedOrigins = ['https://frontend-lovat-sigma-14.vercel.app/', 'http://localhost:5173', 'http://localhost:5174'];
+const allowedOrigins = ['https://frontend-lovat-sigma-14.vercel.app', 'http://localhost:5173', 'http://localhost:5174'];
 
 app.use(cors({
     origin: allowedOrigins,
